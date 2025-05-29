@@ -1,0 +1,127 @@
+import 'package:flutter/material.dart';
+
+class LanguageApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Language Learner',
+      home: HomeScreen(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class Lesson {
+  final String question;
+  final List<String> options;
+  final int correctIndex;
+
+  Lesson({
+    required this.question,
+    required this.options,
+    required this.correctIndex,
+  });
+}
+
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  List<Lesson> lessons = [
+    Lesson(
+      question: "What is 'Hello' in Spanish?",
+      options: ['Hola', 'Bonjour', 'Ciao', 'Hallo'],
+      correctIndex: 0,
+    ),
+    Lesson(
+      question: "What is 'Thank you' in French?",
+      options: ['Gracias', 'Danke', 'Merci', 'Grazie'],
+      correctIndex: 2,
+    ),
+  ];
+
+  int currentIndex = 0;
+  int score = 0;
+  bool showResult = false;
+
+  void answerQuestion(int index) {
+    if (!showResult) {
+      if (index == lessons[currentIndex].correctIndex) {
+        score++;
+      }
+      setState(() {
+        if (currentIndex + 1 < lessons.length) {
+          currentIndex++;
+        } else {
+          showResult = true;
+        }
+      });
+    }
+  }
+
+  void resetQuiz() {
+    setState(() {
+      currentIndex = 0;
+      score = 0;
+      showResult = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Language Learning App')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child:
+            showResult
+                ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Quiz Completed!',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Text('Your score: $score / ${lessons.length}'),
+                    SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: resetQuiz,
+                      child: Text('Restart'),
+                    ),
+                  ],
+                )
+                : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Lesson ${currentIndex + 1}/${lessons.length}',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      lessons[currentIndex].question,
+                      style: TextStyle(fontSize: 22),
+                    ),
+                    SizedBox(height: 20),
+                    ...lessons[currentIndex].options.asMap().entries.map((
+                      entry,
+                    ) {
+                      int idx = entry.key;
+                      String text = entry.value;
+                      return ElevatedButton(
+                        onPressed: () => answerQuestion(idx),
+                        child: Text(text),
+                      );
+                    }),
+                  ],
+                ),
+      ),
+    );
+  }
+}
